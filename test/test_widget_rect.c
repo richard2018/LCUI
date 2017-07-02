@@ -1,4 +1,4 @@
-#include <string.h>
+﻿#include <string.h>
 #include <LCUI_Build.h>
 #include <LCUI/LCUI.h>
 #include <LCUI/timer.h>
@@ -106,7 +106,10 @@ static void check_widget_rect( LCUI_SysEvent ev, void *arg )
 	LCUIMetrics_ComputeRectActual( &old_rect, &rectf );
 	LCUIMetrics_ComputeRectActual( &rect, &self.widget->box.graph );
 	LCUIRect_MergeRect( &rect, &rect, &old_rect );
-	CHECK2( self.count, check_rect_correct( &rect, paint_rect ) );
+	/** 初次重绘时不对脏矩形进行检测 */
+	if( self.count > 0 ) {
+		CHECK2( check_rect_correct( &rect, paint_rect ) );
+	}
 	if( ret != 0 ) {
 		TEST_LOG( "[%d] correct: (%d, %d, %d, %d),"
 			  " actual: (%d, %d, %d, %d)\n", self.step,
@@ -115,6 +118,7 @@ static void check_widget_rect( LCUI_SysEvent ev, void *arg )
 			  paint_rect->width, paint_rect->height );
 	}
 	self.pass += ret;
+	self.count += 1;
 	self.x = self.widget->x;
 	self.y = self.widget->y;
 	LCUI_PostSimpleTask( test_move_widget, NULL, NULL );
